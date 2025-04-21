@@ -3,6 +3,7 @@ from .models import School, Classroom, Teacher, ClassroomTeacher, Student
 from .serializers import SchoolSerializer, ClassroomSerializer, TeacherSerializer, ClassroomTeacherSerializer, StudentSerializer, ClassroomTeacherCreateSerializer
 from django.db.models import Count
 from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 class SchoolViewSet(viewsets.ModelViewSet):
     #queryset = School.objects.all()
@@ -27,7 +28,9 @@ class SchoolViewSet(viewsets.ModelViewSet):
         return queryset
 
 class ClassroomViewSet(viewsets.ModelViewSet):
-    queryset = Classroom.objects.all()
+    #queryset = Classroom.objects.all()
+    queryset = Classroom.objects.prefetch_related('classroomteacher_set__teacher')
+    queryset = Classroom.objects.prefetch_related('students')
     serializer_class = ClassroomSerializer
 
     filter_backends = [SearchFilter]  # add search filter
@@ -46,6 +49,33 @@ class ClassroomViewSet(viewsets.ModelViewSet):
 class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+
+    filter_backends = [SearchFilter, DjangoFilterBackend]  # add search filter
+    search_fields = ['classroomteacher__classroom__school__name', 'name', 'lastname', 'gender']
+    filterset_fields = ['name', 'lastname', 'gender']
+    
+
+    def get_queryset(self):
+        queryset = self.queryset
+        school_name = self.request.query_params.get('classroomteacher__classroom__school__name')
+        #classroom_level= self.request.query_params.get('classroom_level')
+        name = self.request.query_params.get('name')
+        lastname = self.request.query_params.get('lastname')
+        gender = self.request.query_params.get('gender')
+        
+        if school_name:
+
+            queryset = queryset.filter(classroomteacher__classroom__school__name__icontains=school_name)
+        #if classroom_level:
+            #queryset = queryset.filter(classroom__level__icontains=school_name)
+        if name:  # check if have parameter name
+            queryset = queryset.filter(name__icontains=name) # like
+        if lastname:  # check if have parameter name
+            queryset = queryset.filter(lastname__icontains=lastname) # like
+        if gender:  # check if have parameter name
+            queryset = queryset.filter(gender__icontains=gender) # like
+        print(str(queryset.query)) 
+        return queryset
 
 
 class ClassroomTeacherViewSet(viewsets.ModelViewSet):

@@ -13,6 +13,7 @@ class Classroom(models.Model):
     level = models.CharField(max_length=255)
     sub_level = models.CharField(max_length=255)
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="classrooms")
+    teachers = models.ManyToManyField('exam_app.Teacher', through='ClassroomTeacher', related_name='classrooms_teachers')
 
     def __str__(self):
         return f"{self.level}/{self.sub_level}"
@@ -21,7 +22,7 @@ class Teacher(models.Model):
     name = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
     gender = models.CharField(max_length=255)
-    classroom = models.ManyToManyField(Classroom, through='ClassroomTeacher')
+    classroom = models.ManyToManyField(Classroom, through='ClassroomTeacher', related_name='teachers_classrooms')
 
     def __str__(self):
         return self.name
