@@ -1,17 +1,21 @@
 from rest_framework import serializers
 from .models import School, Classroom, Teacher, ClassroomTeacher, Student
 
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = '__all__'
-
-
 class ClassroomSerializer(serializers.ModelSerializer):
-    school = SchoolSerializer()  #
+    #school = SchoolSerializer()  #
+    school = serializers.PrimaryKeyRelatedField(queryset=School.objects.all())
 
     class Meta:
         model = Classroom
+        fields = '__all__'
+
+class SchoolSerializer(serializers.ModelSerializer):
+    classroom_count = serializers.IntegerField(read_only=True)
+    student_count = serializers.IntegerField(read_only=True)
+    teacher_count = serializers.IntegerField(read_only=True)
+    
+    class Meta:
+        model = School
         fields = '__all__'
 
 
@@ -22,7 +26,8 @@ class TeacherSerializer(serializers.ModelSerializer):
 
     
 class StudentSerializer(serializers.ModelSerializer):
-    classroom = ClassroomSerializer()  #
+    #classroom = ClassroomSerializer()  #
+    classroom = serializers.PrimaryKeyRelatedField(queryset=Classroom.objects.all())
 
     class Meta:
         model = Student
@@ -30,8 +35,8 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class ClassroomTeacherSerializer(serializers.ModelSerializer):
-    student = serializers.StringRelatedField()
-    course = serializers.StringRelatedField()
+    classroom = serializers.StringRelatedField()
+    teacher = serializers.StringRelatedField()
 
     class Meta:
         model = ClassroomTeacher
