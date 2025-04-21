@@ -51,14 +51,14 @@ class TeacherViewSet(viewsets.ModelViewSet):
     serializer_class = TeacherSerializer
 
     filter_backends = [SearchFilter, DjangoFilterBackend]  # add search filter
-    search_fields = ['classroomteacher__classroom__school__name']
+    search_fields = ['classroomteacher__classroom__school__name', 'name', 'lastname', 'gender', 'classroomteacher__classroom__level']
     filterset_fields = ['name', 'lastname', 'gender']
     
 
     def get_queryset(self):
         queryset = self.queryset
         school_name = self.request.query_params.get('classroomteacher__classroom__school__name')
-        #classroom_level= self.request.query_params.get('classroom_level')
+        classroom_level= self.request.query_params.get('classroomteacher__classroom__level')
         name = self.request.query_params.get('name')
         lastname = self.request.query_params.get('lastname')
         gender = self.request.query_params.get('gender')
@@ -66,8 +66,8 @@ class TeacherViewSet(viewsets.ModelViewSet):
         if school_name:
 
             queryset = queryset.filter(classroomteacher__classroom__school__name__icontains=school_name)
-        #if classroom_level:
-            #queryset = queryset.filter(classroom__level__icontains=school_name)
+        if classroom_level:
+            queryset = queryset.filter(classroomteacher__classroom__level__icontains=classroom_level)
         if name:  # check if have parameter name
             queryset = queryset.filter(name__icontains=name) # like
         if lastname:  # check if have parameter name
