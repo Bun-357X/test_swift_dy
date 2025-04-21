@@ -7,5 +7,6 @@ router = DefaultRouter()
 api_v1_urls = (router.urls, 'v1')
 
 urlpatterns = [
-    path('v1/', include(api_v1_urls))
+    #path('v1/', include(api_v1_urls)),
+    path('', include('exam_app.urls')),
 ]
