@@ -51,7 +51,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
     serializer_class = TeacherSerializer
 
     filter_backends = [SearchFilter, DjangoFilterBackend]  # add search filter
-    search_fields = ['classroomteacher__classroom__school__name', 'name', 'lastname', 'gender']
+    search_fields = ['classroomteacher__classroom__school__name']
     filterset_fields = ['name', 'lastname', 'gender']
     
 
@@ -74,7 +74,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(lastname__icontains=lastname) # like
         if gender:  # check if have parameter name
             queryset = queryset.filter(gender__icontains=gender) # like
-        print(str(queryset.query)) 
+        
         return queryset
 
 
@@ -90,6 +90,29 @@ class ClassroomTeacherViewSet(viewsets.ModelViewSet):
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    
+
+    filter_backends = [SearchFilter]
+    search_fields = ['classroom__school__name', 'name', 'lastname', 'gender']
+
+    def get_queryset(self):
+        queryset = self.queryset
+        name = self.request.query_params.get('name')
+        lastname = self.request.query_params.get('lastname')
+        gender = self.request.query_params.get('gender')
+
+        school_name = self.request.query_params.get('classroom__school__name')
+        
+        if name: 
+            queryset = queryset.filter(name__contains=name) # like
+        if lastname: 
+            queryset = queryset.filter(lastname__icontains=lastname) # like
+        if gender:
+            queryset = queryset.filter(gender__icontains=gender) # like
+
+        if school_name:
+            queryset = queryset.select_related('classroom__school').filter(classroom__school__name__icontains=school_name) # like
+            #queryset = Student.objects.select_related('classroom__school').filter(classroom__school__name__icontains="ชื่อโรงเรียน")
+        print(str(queryset.query))
+        return queryset
 
 

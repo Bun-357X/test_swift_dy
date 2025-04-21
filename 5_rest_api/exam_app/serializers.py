@@ -3,14 +3,15 @@ from .models import School, Classroom, Teacher, ClassroomTeacher, Student
 
 class StudentSerializer(serializers.ModelSerializer):
     #classroom = ClassroomSerializer()  #
-    classroom = serializers.PrimaryKeyRelatedField(queryset=Classroom.objects.all())
 
     class Meta:
         model = Student
         fields = '__all__'
+        depth = 1
+        depth = 2
 
 class TeacherSerializer(serializers.ModelSerializer):
-    classroom = serializers.SerializerMethodField()  # ✅ ใช้ method กำหนดเอง
+    classroom = serializers.SerializerMethodField()
     class Meta:
         model = Teacher
         fields = '__all__'
