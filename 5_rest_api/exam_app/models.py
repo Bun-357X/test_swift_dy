@@ -6,7 +6,7 @@ class School(models.Model):
     address = models.CharField(max_length=1000)
 
     def __str__(self):
-        return self.title
+        return self.name
     
 
 class Classroom(models.Model):
@@ -15,7 +15,7 @@ class Classroom(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="classrooms")
 
     def __str__(self):
-        return self.title
+        return f"{self.level}/{self.sub_level}"
     
 class Teacher(models.Model):
     name = models.CharField(max_length=255)
@@ -24,7 +24,7 @@ class Teacher(models.Model):
     classroom = models.ManyToManyField(Classroom, through='ClassroomTeacher')
 
     def __str__(self):
-        return self.title
+        return self.name
     
 class ClassroomTeacher(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
@@ -40,4 +40,4 @@ class Student(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="students")
 
     def __str__(self):
-        return self.title
+        return self.name
